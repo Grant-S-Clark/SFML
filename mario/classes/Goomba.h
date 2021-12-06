@@ -1,4 +1,6 @@
-#pragma once
+#ifndef GOOMBA_H
+#define GOOMBA_H
+
 #include "Entity.h"
 
 class Goomba : public Entity
@@ -14,3 +16,4 @@ private:
 	int points;
 };
 
+#endif

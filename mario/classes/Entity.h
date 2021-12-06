@@ -1,4 +1,6 @@
-#pragma once
+#ifndef ENTITY_H
+#define ENTITY_H
+
 #include "Tile.h"
 #include <vector>
 
@@ -33,3 +35,4 @@ private:
 	bool inAir, dead;
 };
 
+#endif

@@ -1,4 +1,6 @@
-#pragma once
+#ifndef GAME_H
+#define GAME_H
+
 #include "Level.h"
 #include "Player.h"
 #include "Goomba.h"
@@ -28,3 +30,4 @@ private:
 	std::vector<sf::FloatRect> levelTiles;
 };
 
+#endif

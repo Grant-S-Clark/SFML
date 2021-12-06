@@ -1,4 +1,6 @@
-#pragma once
+#ifndef LEVEL_H
+#define LEVEL_H
+
 #include <fstream>
 #include "Player.h"
 #include "Goomba.h"
@@ -21,3 +23,4 @@ private:
 	std::vector<Entity*> entities, defaultEntities;
 };
 
+#endif
