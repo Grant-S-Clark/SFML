@@ -1,8 +1,19 @@
 #include "Simulator.h"
 
-Simulator::Simulator(sf::Vector2u window_size)
-    : width((window_size.x - 40) / 4),
-      height((window_size.y - 140) / 4)
+sf::RenderWindow * Simulator::window = nullptr;
+
+//YOU MUST CALL THIS BEFORE CREATING A SIMULATOR OBJECTS.
+void Simulator::get_window_ptr(sf::RenderWindow * const & w_ptr)
+{
+    window = w_ptr;
+
+    return;
+}
+
+
+Simulator::Simulator()
+    : width((window->getSize().x - 40) / 4),
+      height((window->getSize().y - 140) / 4)
 {
     //Seed the rand table.
     std::srand(time(NULL));
@@ -54,29 +65,16 @@ Simulator::~Simulator()
 }
 
 
-void Simulator::reset_particles()
-{
-    for (int i = 0; i < width; i++)
-        for (int j = 0; j < height; j++)
-        {
-            particles[i][j].type = None;
-            particles[i][j].checked = false;
-        }
-
-    return;
-}
-
-
-void Simulator::update(sf::RenderWindow& window)
+void Simulator::update()
 {
     //Capture mouse input if mouse is within the outline
     //of the particle array.
     if (outline.getGlobalBounds().contains(
-            sf::Mouse::getPosition(window).x,
-            sf::Mouse::getPosition(window).y)
+            sf::Mouse::getPosition(*window).x,
+            sf::Mouse::getPosition(*window).y)
         )
     {
-        mouse_input(window);
+        mouse_input();
     }
     
     //Capture keyboard input.
@@ -101,7 +99,8 @@ void Simulator::update(sf::RenderWindow& window)
                         {
                             //Swap the particles and set them as checked.
                             swap(x, y, x, y + 1);
-                            particles[x][y + 1].checked = true;
+                            if (particles[x][y + 1].type != None)
+                                particles[x][y + 1].checked = true;
                         }
                         //Impliments rand_1 to randomly determine whether
                         //left or right side is checked first.
@@ -171,7 +170,60 @@ void Simulator::update(sf::RenderWindow& window)
 }
 
 
-bool Simulator::valid_index(const int x, const int y)
+//Draw particle array to the screen.
+void Simulator::draw_simulator()
+{
+    //Draw outline of particle array.
+    window->draw(outline);
+
+    //Draw particle array.
+    for (int i = 0; i < width; i++)
+    {
+        for (int j = 0; j < height; j++)
+        {
+            switch (particles[i][j].type)
+            {
+                case Sand:
+                    printer.setFillColor(sf::Color::Yellow);
+                    //Moves 20 pixels for offset from top right of window border.
+                    printer.setPosition(20 + (i * 4), 20 + (j * 4));
+                    window->draw(printer);
+                    break;
+                case Water:
+                    printer.setFillColor(sf::Color::Blue);
+                    printer.setPosition(20 + (i * 4), 20 + (j * 4));
+                    window->draw(printer);
+                    break;
+                case Wood:
+                    printer.setFillColor(sf::Color(150, 75, 0)); //Brown
+                    printer.setPosition(20 + (i * 4), 20 + (j * 4));
+                    window->draw(printer);
+                    break;
+            }
+        }
+    }
+
+    return;
+}
+
+
+//////////// PRIVATE ////////////
+
+
+void Simulator::reset_particles()
+{
+    for (int i = 0; i < width; i++)
+        for (int j = 0; j < height; j++)
+        {
+            particles[i][j].type = None;
+            particles[i][j].checked = false;
+        }
+
+    return;
+}
+
+
+bool Simulator::valid_index(const int x, const int y) const
 {
     if (x >= 0 && x < width && y >= 0 && y < height)
         return true;
@@ -180,7 +232,8 @@ bool Simulator::valid_index(const int x, const int y)
 
 
 //Check if one particle type is swappable with another.
-bool Simulator::swappable(Type type1, Type type2)
+bool Simulator::swappable(const Type & type1,
+                          const Type & type2) const
 {
     switch (type1)
     {
@@ -203,7 +256,10 @@ bool Simulator::swappable(Type type1, Type type2)
 
 
 //Swap the values of particles[x1][y1] and particles[x2][y2].
-void Simulator::swap(const int x1, const int y1, const int x2, const int y2)
+void Simulator::swap(const int x1,
+                     const int y1,
+                     const int x2,
+                     const int y2)
 {
     Type temp;
     temp = particles[x1][y1].type;
@@ -215,23 +271,23 @@ void Simulator::swap(const int x1, const int y1, const int x2, const int y2)
 
 
 //Check for mouse input to determine if to place new particles.
-void Simulator::mouse_input(sf::RenderWindow& window)
+void Simulator::mouse_input()
 {
     int xPos, yPos;
 
     //Check for clicking within the particle array.
     if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
     {
-        xPos = (sf::Mouse::getPosition(window).x - 20) / 4;
-        yPos = (sf::Mouse::getPosition(window).y - 20) / 4;
+        xPos = (sf::Mouse::getPosition(*window).x - 20) / 4;
+        yPos = (sf::Mouse::getPosition(*window).y - 20) / 4;
 
         place_particles(xPos, yPos, false);
     }
 
     else if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
     {
-        xPos = (sf::Mouse::getPosition(window).x - 20) / 4;
-        yPos = (sf::Mouse::getPosition(window).y - 20) / 4;
+        xPos = (sf::Mouse::getPosition(*window).x - 20) / 4;
+        yPos = (sf::Mouse::getPosition(*window).y - 20) / 4;
 
         place_particles(xPos, yPos, true);
     }
@@ -316,38 +372,3 @@ void Simulator::keyboard_input()
 }
 
 
-//Draw particle array to the screen.
-void Simulator::draw_simulator(sf::RenderWindow& window)
-{
-    //Draw outline of particle array.
-    window.draw(outline);
-
-    //Draw particle array.
-    for (int i = 0; i < width; i++)
-    {
-        for (int j = 0; j < height; j++)
-        {
-            switch (particles[i][j].type)
-            {
-                case Sand:
-                    printer.setFillColor(sf::Color::Yellow);
-                    //Moves 20 pixels for offset from top right of window border.
-                    printer.setPosition(20 + (i * 4), 20 + (j * 4));
-                    window.draw(printer);
-                    break;
-                case Water:
-                    printer.setFillColor(sf::Color::Blue);
-                    printer.setPosition(20 + (i * 4), 20 + (j * 4));
-                    window.draw(printer);
-                    break;
-                case Wood:
-                    printer.setFillColor(sf::Color(150, 75, 0)); //Brown
-                    printer.setPosition(20 + (i * 4), 20 + (j * 4));
-                    window.draw(printer);
-                    break;
-            }
-        }
-    }
-
-    return;
-}

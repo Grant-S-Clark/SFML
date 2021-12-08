@@ -1,5 +1,5 @@
-#ifndef SIMULATOR_CLASS
-#define SIMULATOR_CLASS
+#ifndef SIMULATOR_H
+#define SIMULATOR_H
 
 #include <iostream>
 #include <time.h>
@@ -21,18 +21,20 @@ struct Particle
 class Simulator
 {
 public:
-    Simulator(sf::Vector2u);
+    static void get_window_ptr(sf::RenderWindow * const &);
+    
+    Simulator();
     ~Simulator();
-
-    void update(sf::RenderWindow&);
-    void draw_simulator(sf::RenderWindow&);
+    
+    void update();
+    void draw_simulator();
 private:
     void reset_particles();
-    void mouse_input(sf::RenderWindow&);
+    void mouse_input();
     void place_particles(const int, const int, const bool);
     void keyboard_input();
-    bool valid_index(const int, const int);
-    bool swappable(Type, Type);
+    bool valid_index(const int, const int) const;
+    bool swappable(const Type&, const Type&) const;
     void swap(const int, const int, const int, const int);
 
     sf::RectangleShape outline;
@@ -46,6 +48,8 @@ private:
     bool left_bracket_pressed;
     bool right_bracket_pressed;
     Type selected_type;
+
+    static sf::RenderWindow* window;
 };
 
 #endif

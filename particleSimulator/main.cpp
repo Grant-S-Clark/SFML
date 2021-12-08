@@ -5,7 +5,8 @@ int main()
 {
     sf::RenderWindow window(sf::VideoMode(600, 500), "Particle Simulation");
 
-    Simulator simulator(window.getSize());
+    Simulator::get_window_ptr(&window);
+    Simulator simulator;
 
     bool in_focus = true;
 
@@ -37,8 +38,8 @@ int main()
 
             window.clear();
 
-            simulator.update(window);
-            simulator.draw_simulator(window);
+            simulator.update();
+            simulator.draw_simulator();
 
             window.display();
         }
