@@ -87,7 +87,7 @@ void Simulator::update()
             if (!particles[x][y].checked && particles[x][y].type != None)
             {
                 if (std::rand() % 2 == 0)
-                    rand_1 *= -1;
+                    rand_1 *= 1;
 
                 //Reminder that the Wood type has no update cycles.
                 switch (particles[x][y].type)
@@ -109,14 +109,16 @@ void Simulator::update()
                                  !particles[x - rand_1][y + 1].checked)
                         {
                             swap(x, y, x - rand_1, y + 1);
-                            particles[x - rand_1][y + 1].checked = true;
+                            if (particles[x - rand_1][y + 1].type != None)
+                                particles[x - rand_1][y + 1].checked = true;
                         }
                         else if (valid_index(x + rand_1, y + 1) &&
                                  swappable(particles[x][y].type, particles[x + rand_1][y + 1].type) &&
                                  !particles[x + rand_1][y + 1].checked)
                         {
                             swap(x, y, x + rand_1, y + 1);
-                            particles[x + rand_1][y + 1].checked = true;
+                            if (particles[x + rand_1][y + 1].type != None)
+                                particles[x + rand_1][y + 1].checked = true;
                         }
                         break;
                     case Water:
@@ -126,35 +128,40 @@ void Simulator::update()
                         {
                             //Swap the particles and set them as checked.
                             swap(x, y, x, y + 1);
-                            particles[x][y + 1].checked = true;
+                            if (particles[x][y + 1].type != None)
+                                particles[x][y + 1].checked = true;
                         }
                         else if (valid_index(x - rand_1, y + 1) &&
                                  swappable(particles[x][y].type, particles[x - rand_1][y + 1].type) &&
                                  !particles[x - rand_1][y + 1].checked)
                         {
                             swap(x, y, x - rand_1, y + 1);
-                            particles[x - rand_1][y + 1].checked = true;
+                            if (particles[x - rand_1][y + 1].type != None)
+                                particles[x - rand_1][y + 1].checked = true;
                         }
                         else if (valid_index(x + rand_1, y + 1) &&
                                  swappable(particles[x][y].type, particles[x + rand_1][y + 1].type) &&
                                  !particles[x + rand_1][y + 1].checked)
                         {
                             swap(x, y, x + rand_1, y + 1);
-                            particles[x + rand_1][y + 1].checked = true;
+                            if (particles[x + rand_1][y + 1].type != None)
+                                particles[x + rand_1][y + 1].checked = true;
                         }
                         else if (valid_index(x - rand_1, y) &&
                                  swappable(particles[x][y].type, particles[x - rand_1][y].type) &&
                                  !particles[x - rand_1][y].checked)
                         {
                             swap(x, y, x - rand_1, y);
-                            particles[x - rand_1][y].checked = true;
+                            if (particles[x - rand_1][y].type != None)
+                                particles[x - rand_1][y].checked = true;
                         }
                         else if (valid_index(x + rand_1, y) &&
                                  swappable(particles[x][y].type, particles[x + rand_1][y].type) &&
                                  !particles[x + rand_1][y].checked)
                         {
                             swap(x, y, x + rand_1, y);
-                            particles[x + rand_1][y].checked = true;
+                            if (particles[x + rand_1][y].type != None)
+                                particles[x + rand_1][y].checked = true;
                         }
                         break;
                 }
