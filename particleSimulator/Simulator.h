@@ -3,6 +3,8 @@
 
 #include <iostream>
 #include <time.h>
+#include <unordered_map>
+#include <vector>
 #include <SFML/Graphics.hpp>
 
 enum Type {
@@ -16,6 +18,12 @@ struct Particle
 {
     Type type;
     bool checked;
+};
+
+struct IntPair
+{
+    int x;
+    int y;
 };
 
 class Simulator
@@ -50,6 +58,8 @@ private:
     Type selected_type;
 
     static sf::RenderWindow* window;
+
+    static std::unordered_map<Type, std::vector<IntPair>> check_pairs;
 };
 
 #endif

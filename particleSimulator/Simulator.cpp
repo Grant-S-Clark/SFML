@@ -2,6 +2,22 @@
 
 sf::RenderWindow * Simulator::window = nullptr;
 
+std::unordered_map<Type, std::vector<IntPair>> Simulator::check_pairs =
+{
+    {Sand, {{0, 1},
+            {-1, 1},
+            {1, 1}}
+    },
+    
+    {Water, {{0, 1},
+             {-1, 1},
+             {1, 1},
+             {-1, 0},
+             {1, 0}}
+    },
+    {Wood, {}}
+};
+
 //YOU MUST CALL THIS BEFORE CREATING A SIMULATOR OBJECTS.
 void Simulator::get_window_ptr(sf::RenderWindow * const & w_ptr)
 {
@@ -49,7 +65,7 @@ Simulator::Simulator()
 
     left_bracket_pressed = false;
     right_bracket_pressed = false;
-
+    
     return;
 }
 
@@ -81,89 +97,36 @@ void Simulator::update()
     keyboard_input();
 
     //Update particles.
-    for (int y = height - 1; y >= 0; y--)
-        for (int x = width - 1; x >= 0; x--)
+    std::vector<IntPair>* pairs;
+    int loop_size;
+    for (int y = height - 1; y >= 0; --y)
+        for (int x = width - 1; x >= 0; --x)
         {
-            if (!particles[x][y].checked && particles[x][y].type != None)
+            if (particles[x][y].type != None &&
+                !particles[x][y].checked)
             {
                 if (std::rand() % 2 == 0)
-                    rand_1 *= 1;
-
-                //Reminder that the Wood type has no update cycles.
-                switch (particles[x][y].type)
+                    rand_1 *= -1;
+                pairs = &(check_pairs[particles[x][y].type]);
+                loop_size = pairs->size();
+                for (int i = 0, n_x, n_y; i < loop_size; ++i)
                 {
-                    case Sand:
-                        if (valid_index(x, y + 1) &&
-                            swappable(particles[x][y].type, particles[x][y + 1].type) &&
-                            !particles[x][y + 1].checked)
+                    //New x and New y.
+                    n_x = x + (pairs->at(i).x * rand_1);
+                    n_y = y + pairs->at(i).y;
+                    if (valid_index(n_x, n_y))
+                    {
+                        if (!particles[n_x][n_y].checked &&
+                            swappable(particles[x][y].type,
+                                      particles[n_x][n_y].type))
                         {
-                            //Swap the particles and set them as checked.
-                            swap(x, y, x, y + 1);
-                            if (particles[x][y + 1].type != None)
-                                particles[x][y + 1].checked = true;
+                            swap(x, y, n_x, n_y);
+                            particles[n_x][n_y].checked = true;
+                            if (particles[x][y].type != None)
+                                particles[x][y].checked = true;
+                            break;
                         }
-                        //Impliments rand_1 to randomly determine whether
-                        //left or right side is checked first.
-                        else if (valid_index(x - rand_1, y + 1) &&
-                                 swappable(particles[x][y].type, particles[x - rand_1][y + 1].type) &&
-                                 !particles[x - rand_1][y + 1].checked)
-                        {
-                            swap(x, y, x - rand_1, y + 1);
-                            if (particles[x - rand_1][y + 1].type != None)
-                                particles[x - rand_1][y + 1].checked = true;
-                        }
-                        else if (valid_index(x + rand_1, y + 1) &&
-                                 swappable(particles[x][y].type, particles[x + rand_1][y + 1].type) &&
-                                 !particles[x + rand_1][y + 1].checked)
-                        {
-                            swap(x, y, x + rand_1, y + 1);
-                            if (particles[x + rand_1][y + 1].type != None)
-                                particles[x + rand_1][y + 1].checked = true;
-                        }
-                        break;
-                    case Water:
-                        if (valid_index(x, y + 1) &&
-                            swappable(particles[x][y].type, particles[x][y + 1].type) &&
-                            !particles[x][y + 1].checked)
-                        {
-                            //Swap the particles and set them as checked.
-                            swap(x, y, x, y + 1);
-                            if (particles[x][y + 1].type != None)
-                                particles[x][y + 1].checked = true;
-                        }
-                        else if (valid_index(x - rand_1, y + 1) &&
-                                 swappable(particles[x][y].type, particles[x - rand_1][y + 1].type) &&
-                                 !particles[x - rand_1][y + 1].checked)
-                        {
-                            swap(x, y, x - rand_1, y + 1);
-                            if (particles[x - rand_1][y + 1].type != None)
-                                particles[x - rand_1][y + 1].checked = true;
-                        }
-                        else if (valid_index(x + rand_1, y + 1) &&
-                                 swappable(particles[x][y].type, particles[x + rand_1][y + 1].type) &&
-                                 !particles[x + rand_1][y + 1].checked)
-                        {
-                            swap(x, y, x + rand_1, y + 1);
-                            if (particles[x + rand_1][y + 1].type != None)
-                                particles[x + rand_1][y + 1].checked = true;
-                        }
-                        else if (valid_index(x - rand_1, y) &&
-                                 swappable(particles[x][y].type, particles[x - rand_1][y].type) &&
-                                 !particles[x - rand_1][y].checked)
-                        {
-                            swap(x, y, x - rand_1, y);
-                            if (particles[x - rand_1][y].type != None)
-                                particles[x - rand_1][y].checked = true;
-                        }
-                        else if (valid_index(x + rand_1, y) &&
-                                 swappable(particles[x][y].type, particles[x + rand_1][y].type) &&
-                                 !particles[x + rand_1][y].checked)
-                        {
-                            swap(x, y, x + rand_1, y);
-                            if (particles[x + rand_1][y].type != None)
-                                particles[x + rand_1][y].checked = true;
-                        }
-                        break;
+                    }
                 }
             }
         }
