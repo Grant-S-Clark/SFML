@@ -4,21 +4,25 @@
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(600, 500), "Particle Simulation");
-
+    
     Simulator::get_window_ptr(&window);
     Simulator simulator;
 
-    bool in_focus = true;
+    bool in_focus = true,
+         running = true;
 
-    while (window.isOpen())
+    while (running)
     {
         sf::Event e;
 
         while (window.pollEvent(e))
         {
             //Close window if closed or Escape key is pressed while in focus.
-            if (e.type == sf::Event::Closed || (in_focus && sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)))
-                window.close();
+            if (e.type == sf::Event::Closed ||
+                (in_focus && sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)))
+            {
+                running = false;
+            }
 
             //Adjust window focus if changed.
             if (in_focus && e.type == sf::Event::LostFocus)
@@ -33,16 +37,18 @@ int main()
             //DEBUG SPACEBAR SLOW MO
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
                 window.setFramerateLimit(10);
+            //SPEEEEEED
             else
-                window.setFramerateLimit(200);
+                window.setFramerateLimit(9999999);
 
-            window.clear();
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             simulator.update();
             simulator.draw_simulator();
 
             window.display();
         }
+
     }
 
     return 0;

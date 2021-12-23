@@ -124,6 +124,7 @@ void Simulator::update()
                             particles[n_x][n_y].checked = true;
                             if (particles[x][y].type != None)
                                 particles[x][y].checked = true;
+                            //If they swapped, break out of the loop.
                             break;
                         }
                     }
@@ -147,31 +148,34 @@ void Simulator::draw_simulator()
     window->draw(outline);
 
     //Draw particle array.
+    glBegin(GL_POINTS);
     for (int i = 0; i < width; i++)
     {
         for (int j = 0; j < height; j++)
         {
-            switch (particles[i][j].type)
+            if (particles[i][j].type != None)
             {
-                case Sand:
-                    printer.setFillColor(sf::Color::Yellow);
-                    //Moves 20 pixels for offset from top right of window border.
-                    printer.setPosition(20 + (i * 4), 20 + (j * 4));
-                    window->draw(printer);
-                    break;
-                case Water:
-                    printer.setFillColor(sf::Color::Blue);
-                    printer.setPosition(20 + (i * 4), 20 + (j * 4));
-                    window->draw(printer);
-                    break;
-                case Wood:
-                    printer.setFillColor(sf::Color(150, 75, 0)); //Brown
-                    printer.setPosition(20 + (i * 4), 20 + (j * 4));
-                    window->draw(printer);
-                    break;
+                //Select Color
+                switch (particles[i][j].type)
+                {
+                    case Sand:
+                        glColor3ub(255, 255, 0); //YELLOW
+                        break;
+                    case Water:
+                        glColor3ub(0, 0, 255); //BLUE
+                        break;
+                    case Wood:
+                        glColor3ub(150, 75, 0); //BROWN
+                        break;
+                }
+
+                //Draw particle.
+                for (int k = 0; k < 16; ++k)
+                    glVertex2i((i * 4) + k % 4, (j * 4) + (k / 4));
             }
         }
     }
+    glEnd();
 
     return;
 }

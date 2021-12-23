@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <vector>
 #include <SFML/Graphics.hpp>
+#include <SFML/OpenGL.hpp> //DRAW FAST
 
 enum Type {
     None = 0,
