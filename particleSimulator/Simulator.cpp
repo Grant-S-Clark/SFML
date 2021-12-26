@@ -29,7 +29,8 @@ void Simulator::get_window_ptr(sf::RenderWindow * const & w_ptr)
 
 Simulator::Simulator()
     : width((window->getSize().x - 40) / 4),
-      height((window->getSize().y - 140) / 4)
+      height((window->getSize().y - 140) / 4),
+      scale_factor(4)
 {
     //Seed the rand table.
     std::srand(time(NULL));
@@ -44,16 +45,12 @@ Simulator::Simulator()
 
     //Create the outline for the particle array to distinguish
     //its space limits.
-    outline.setSize(sf::Vector2f(width * 4, height * 4));
+    outline.setSize(sf::Vector2f(width * scale_factor,
+                                 height * scale_factor));
     outline.setFillColor(sf::Color::Transparent);
     outline.setOutlineThickness(3);
     outline.setOutlineColor(sf::Color::Red);
     outline.setPosition(20, 20);
-
-    //Create the printer object. This object will be
-    //used for printing each particle in the particle
-    //array.
-    printer.setSize(sf::Vector2f(4, 4));
 
     //Default selected type is set to sand.
     selected_type = Sand;
@@ -72,7 +69,7 @@ Simulator::Simulator()
 
 Simulator::~Simulator()
 {
-    //return the space used by particle array.
+    //return the space used by particle array to the computer.
     for (int i = 0; i < width; i++)
         delete[] particles[i];
     delete[] particles;
@@ -170,8 +167,9 @@ void Simulator::draw_simulator()
                 }
 
                 //Draw particle.
-                for (int k = 0; k < 16; ++k)
-                    glVertex2i((i * 4) + k % 4, (j * 4) + (k / 4));
+                for (int k = 0; k < scale_factor * scale_factor; ++k)
+                    glVertex2i((i * scale_factor) + k % scale_factor,
+                               (j * scale_factor) + (k / scale_factor));
             }
         }
     }
@@ -182,6 +180,52 @@ void Simulator::draw_simulator()
 
 
 //////////// PRIVATE ////////////
+
+void Simulator::resize_particles(const int new_width,
+                                 const int new_height)
+{
+    Particle** new_arr = new Particle*[new_width];
+    for (int i = 0; i < new_width; ++i)
+        new_arr[i] = new Particle[new_height];
+
+    //reset new particle array.
+    for (int i = 0; i < new_width; i++)
+        for (int j = 0; j < new_height; j++)
+        {
+            new_arr[i][j].type = None;
+            new_arr[i][j].checked = false;
+        }
+    
+    //if size increased.
+    if (new_width > width)
+    {
+        //Only increases via doubling.
+        for (int i = 0; i < width; ++i)
+            for (int j = 0; j < height; ++j)
+                new_arr[width + i][height + j] =
+                    particles[i][j];
+    }
+
+    else
+    {
+        for (int i = 0; i < new_width; ++i)
+            for (int j = 0; j < new_height; ++j)
+                new_arr[i][j] = particles[new_width + i][new_height + j];
+    }
+
+    //Delete old array and change pointer.
+    for (int i = 0; i < width; i++)
+        delete[] particles[i];
+    delete[] particles;
+
+    particles = new_arr;
+
+    //Change size.
+    width = new_width;
+    height = new_height;
+    
+    return;
+}
 
 
 void Simulator::reset_particles()
@@ -252,16 +296,16 @@ void Simulator::mouse_input()
     //Check for clicking within the particle array.
     if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
     {
-        xPos = (sf::Mouse::getPosition(*window).x - 20) / 4;
-        yPos = (sf::Mouse::getPosition(*window).y - 20) / 4;
+        xPos = (sf::Mouse::getPosition(*window).x - 20) / scale_factor;
+        yPos = (sf::Mouse::getPosition(*window).y - 20) / scale_factor;
 
         place_particles(xPos, yPos, false);
     }
 
     else if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
     {
-        xPos = (sf::Mouse::getPosition(*window).x - 20) / 4;
-        yPos = (sf::Mouse::getPosition(*window).y - 20) / 4;
+        xPos = (sf::Mouse::getPosition(*window).x - 20) / scale_factor;
+        yPos = (sf::Mouse::getPosition(*window).y - 20) / scale_factor;
 
         place_particles(xPos, yPos, true);
     }
@@ -319,9 +363,22 @@ void Simulator::keyboard_input()
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::LBracket) &&
         !left_bracket_pressed)
     {
-        //Minimum placement size.
-        if (placement_size != 0)
-            placement_size--;
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
+        {
+            //Minimum scale factor.
+            if (scale_factor != 1)
+            {
+                scale_factor /= 2;
+                resize_particles(width * 2, height * 2);
+            }
+        }
+        else
+        {
+            //Minimum placement size.
+            if (placement_size != 0)
+                placement_size--;
+        }
+        
         left_bracket_pressed = true;
     }
 
@@ -332,9 +389,22 @@ void Simulator::keyboard_input()
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::RBracket) &&
         !right_bracket_pressed)
     {
-        //Maximum placement size.
-        if (placement_size != 5)
-            placement_size++;
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
+        {
+            //Minimum scale factor.
+            if (scale_factor != 16)
+            {
+                scale_factor *= 2;
+                resize_particles(width / 2, height / 2);
+            }
+        }
+        else
+        {
+            //Maximum placement size.
+            if (placement_size != 5)
+                placement_size++;
+        }
+        
         right_bracket_pressed = true;
     }
 

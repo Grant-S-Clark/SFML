@@ -38,6 +38,7 @@ public:
     void update();
     void draw_simulator();
 private:
+    void resize_particles(const int, const int);
     void reset_particles();
     void mouse_input();
     void place_particles(const int, const int, const bool);
@@ -47,11 +48,11 @@ private:
     void swap(const int, const int, const int, const int);
 
     sf::RectangleShape outline;
-    sf::RectangleShape printer;
     Particle** particles;
 
     int width;
     int height;
+    int scale_factor;
     int placement_size;
     int rand_1;
     bool left_bracket_pressed;
