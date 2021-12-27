@@ -3,7 +3,7 @@
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(600, 500), "Particle Simulation");
+    sf::RenderWindow window(sf::VideoMode(760, 660), "Particle Simulation");
     
     Simulator::get_window_ptr(&window);
     Simulator simulator;
@@ -37,8 +37,7 @@ int main()
             //DEBUG SPACEBAR SLOW MO
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
                 window.setFramerateLimit(10);
-            //SPEEEEEED
-            else
+            else               //completely reasonable.
                 window.setFramerateLimit(9999999);
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

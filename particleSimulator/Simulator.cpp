@@ -29,7 +29,7 @@ void Simulator::get_window_ptr(sf::RenderWindow * const & w_ptr)
 
 Simulator::Simulator()
     : width((window->getSize().x - 40) / 4),
-      height((window->getSize().y - 140) / 4),
+      height((window->getSize().y - 180) / 4),
       scale_factor(4)
 {
     //Seed the rand table.
@@ -401,7 +401,7 @@ void Simulator::keyboard_input()
         else
         {
             //Maximum placement size.
-            if (placement_size != 5)
+            if (placement_size != 10)
                 placement_size++;
         }
         
