@@ -6,7 +6,9 @@
 #include <unordered_map>
 #include <vector>
 #include <SFML/Graphics.hpp>
-#include <SFML/OpenGL.hpp> //DRAW FAST
+#include <SFML/OpenGL.hpp> //faster drawing of the particle array.
+
+#include "Button.h" //My button class.
 
 enum Type {
     None = 0,
