@@ -30,7 +30,9 @@ void Simulator::get_window_ptr(sf::RenderWindow * const & w_ptr)
 Simulator::Simulator()
     : width((window->getSize().x - 40) / 4),
       height((window->getSize().y - 180) / 4),
-      scale_factor(4)
+      scale_factor(4),
+      grow_button(sf::Vector2f(40, 40)),
+      shrink_button(sf::Vector2f(40, 40))
 {
     //Seed the rand table.
     std::srand(time(NULL));
@@ -62,7 +64,12 @@ Simulator::Simulator()
 
     left_bracket_pressed = false;
     right_bracket_pressed = false;
-    
+
+    if(!font.loadFromFile("font.otf"))
+        throw FontLoadError();
+
+    make_buttons();
+        
     return;
 }
 
@@ -89,6 +96,9 @@ void Simulator::update()
     {
         mouse_input();
     }
+
+    else
+        button_input();
     
     //Capture keyboard input.
     keyboard_input();
@@ -134,6 +144,9 @@ void Simulator::update()
         for (int j = 0; j < height; j++)
             particles[i][j].checked = false;
 
+    grow_button.update(*window);
+    shrink_button.update(*window);
+    
     return;
 }
 
@@ -175,11 +188,40 @@ void Simulator::draw_simulator()
     }
     glEnd();
 
+    //Draw Buttons
+    grow_button.draw(*window);
+    shrink_button.draw(*window);
+
     return;
 }
 
 
 //////////// PRIVATE ////////////
+void Simulator::make_buttons()
+{
+    sf::Vector2u win_size = window->getSize();
+
+    grow_button.setFillColor(sf::Color::White);
+    grow_button.setOutlineColor(sf::Color(125, 125, 125));
+    grow_button.set_text_font(font);
+    grow_button.set_text_char_size(11);
+    grow_button.set_text_string("Grow");
+    grow_button.setPosition(win_size.x / 2 - 30,
+                            win_size.y - (win_size.y / 6));
+    grow_button.update(*window);
+
+    shrink_button.setFillColor(sf::Color::White);
+    shrink_button.setOutlineColor(sf::Color(125, 125, 125));
+    shrink_button.set_text_font(font);
+    shrink_button.set_text_char_size(11);
+    shrink_button.set_text_string("Shrink");
+    shrink_button.setPosition(win_size.x / 2 + 30,
+                            win_size.y - (win_size.y / 6));
+    shrink_button.update(*window);
+    
+    return;
+}
+
 
 void Simulator::resize_particles(const int new_width,
                                  const int new_height)
@@ -391,7 +433,7 @@ void Simulator::keyboard_input()
     {
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
         {
-            //Minimum scale factor.
+            //Maximum scale factor.
             if (scale_factor != 16)
             {
                 scale_factor *= 2;
@@ -416,3 +458,27 @@ void Simulator::keyboard_input()
 }
 
 
+void Simulator::button_input()
+{
+    if (grow_button.is_clicked())
+    {
+        //Minimum scale factor.
+        if (scale_factor != 1)
+        {
+            scale_factor /= 2;
+            resize_particles(width * 2, height * 2);
+        }
+    }
+
+    else if (shrink_button.is_clicked())
+    {
+        //Maximum scale factor.
+        if (scale_factor != 16)
+        {
+            scale_factor *= 2;
+            resize_particles(width / 2, height / 2);
+        }
+    }
+
+    return;
+}

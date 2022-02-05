@@ -69,6 +69,10 @@ public:
     // Rectangle Funcitons
     void setFillColor(const sf::Color & color);
     void setOutlineColor(const sf::Color & color);
+    void setPosition(const float x, const float y);
+    void setPosition(const sf::Vector2f & v);
+    void move(const float x, const float y);
+    void move(const sf::Vector2f & v);
 
     // Call this function AFTER adjusting
     // the button, such as moving it. It will

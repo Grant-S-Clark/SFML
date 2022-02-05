@@ -77,26 +77,60 @@ void Button::setOutlineColor(const sf::Color & color)
 }
 
 
+void Button::setPosition(const float x, const float y)
+{
+    setPosition(sf::Vector2f(x, y));
+    return;
+}
+
+
+void Button::setPosition(const sf::Vector2f & v)
+{
+    sf::RectangleShape::setPosition(v);
+    if (text_ != nullptr)
+        text_->setPosition(getPosition());
+    
+    return;
+}
+
+
+void Button::move(const float x, const float y)
+{
+    move(sf::Vector2f(x, y));
+    return;
+}
+
+
+void Button::move(const sf::Vector2f & v)
+{
+    sf::RectangleShape::move(v);
+    if (text_ != nullptr)
+        text_->setPosition(getPosition());
+
+    return;
+}
+
+
 void Button::update(const sf::RenderWindow & window)
 {
     if (text_ != nullptr &&
         getPosition() != text_->getPosition())
     {
-        adjust_text();
+        text_->setPosition(getPosition());
     }
 
     //Handle transparency here.
     sf::Vector2i mouse_pos = sf::Mouse::getPosition(window);
     if (getGlobalBounds().contains(mouse_pos.x, mouse_pos.y))
     {
-        if (getFillColor() != fill_)
+        if (getFillColor().a != 0)
         {
             sf::RectangleShape::setFillColor(fill_);
             text_->setFillColor(text_fill_);
         }
     }
 
-    else if (getFillColor() != t_fill_)
+    else if (getFillColor().a != 125)
     {
         sf::RectangleShape::setFillColor(t_fill_);
         text_->setFillColor(t_text_fill_);
@@ -108,7 +142,7 @@ void Button::update(const sf::RenderWindow & window)
 
 bool Button::is_clicked()
 {
-    if (getFillColor() == t_fill_)
+    if (getFillColor().a == 125)
     {
         if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !clicking)
         {

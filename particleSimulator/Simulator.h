@@ -40,11 +40,13 @@ public:
     void update();
     void draw_simulator();
 private:
+    void make_buttons();
     void resize_particles(const int, const int);
     void reset_particles();
     void mouse_input();
     void place_particles(const int, const int, const bool);
     void keyboard_input();
+    void button_input();
     bool valid_index(const int, const int) const;
     bool swappable(const Type&, const Type&) const;
     void swap(const int, const int, const int, const int);
@@ -61,9 +63,13 @@ private:
     bool right_bracket_pressed;
     Type selected_type;
 
+    sf::Font font;
     static sf::RenderWindow* window;
 
     static std::unordered_map<Type, std::vector<IntPair>> check_pairs;
+    Button grow_button, shrink_button;
 };
+
+class FontLoadError{};
 
 #endif
