@@ -142,7 +142,7 @@ void Button::update(const sf::RenderWindow & window)
 
 bool Button::is_clicked()
 {
-    if (getFillColor().a == 125)
+    if (getFillColor().a != 125)
     {
         if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !clicking)
         {
@@ -152,7 +152,7 @@ bool Button::is_clicked()
     }
 
     //Update the clicking check boolean.
-    else if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !clicking)
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !clicking)
         clicking = true;
     else if (clicking && !sf::Mouse::isButtonPressed(sf::Mouse::Left))
         clicking = false;
