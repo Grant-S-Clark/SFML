@@ -31,8 +31,8 @@ Simulator::Simulator()
     : width((window->getSize().x - 40) / 4),
       height((window->getSize().y - 180) / 4),
       scale_factor(4),
-      grow_button(sf::Vector2f(40, 40)),
-      shrink_button(sf::Vector2f(40, 40))
+      grow_button(sf::Vector2f(50, 50)),
+      shrink_button(sf::Vector2f(50, 50))
 {
     //Seed the rand table.
     std::srand(time(NULL));
@@ -204,7 +204,7 @@ void Simulator::make_buttons()
     grow_button.setFillColor(sf::Color::White);
     grow_button.setOutlineColor(sf::Color(125, 125, 125));
     grow_button.set_text_font(font);
-    grow_button.set_text_char_size(11);
+    grow_button.set_text_char_size(13);
     grow_button.set_text_string("Grow");
     grow_button.setPosition(win_size.x / 2 - 30,
                             win_size.y - (win_size.y / 6));
@@ -213,7 +213,7 @@ void Simulator::make_buttons()
     shrink_button.setFillColor(sf::Color::White);
     shrink_button.setOutlineColor(sf::Color(125, 125, 125));
     shrink_button.set_text_font(font);
-    shrink_button.set_text_char_size(11);
+    shrink_button.set_text_char_size(13);
     shrink_button.set_text_string("Shrink");
     shrink_button.setPosition(win_size.x / 2 + 30,
                             win_size.y - (win_size.y / 6));
