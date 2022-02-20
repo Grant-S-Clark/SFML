@@ -67,6 +67,7 @@ private:
     static sf::RenderWindow* window;
 
     static std::unordered_map<Type, std::vector<IntPair>> check_pairs;
+    static std::unordered_map<Type, int> move_nums;
     Button grow_button, shrink_button;
 };
 

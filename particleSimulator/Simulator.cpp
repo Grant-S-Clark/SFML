@@ -18,6 +18,14 @@ std::unordered_map<Type, std::vector<IntPair>> Simulator::check_pairs =
     {Wood, {}}
 };
 
+std::unordered_map<Type, int> Simulator::move_nums =
+{
+    {Sand, 3},
+    {Water, 5},
+    {Wood, 0}
+};
+
+
 //YOU MUST CALL THIS BEFORE CREATING A SIMULATOR OBJECTS.
 void Simulator::get_window_ptr(sf::RenderWindow * const & w_ptr)
 {
@@ -105,38 +113,71 @@ void Simulator::update()
 
     //Update particles.
     std::vector<IntPair>* pairs;
-    int loop_size;
+    int num_pairs, num_moves, start_x, start_y;
+    bool break_move_loop;
     for (int y = height - 1; y >= 0; --y)
         for (int x = width - 1; x >= 0; --x)
         {
-            if (particles[x][y].type != None &&
-                !particles[x][y].checked)
+            start_x = x;
+            start_y = y;
+            
+            break_move_loop = false;
+            num_moves = move_nums[particles[x][y].type];
+            
+            for (int move = 0; move < num_moves; ++move)
             {
-                if (std::rand() % 2 == 0)
-                    rand_1 *= -1;
-                pairs = &(check_pairs[particles[x][y].type]);
-                loop_size = pairs->size();
-                for (int i = 0, n_x, n_y; i < loop_size; ++i)
+                if (particles[x][y].type != None &&
+                    !particles[x][y].checked)
                 {
-                    //New x and New y.
-                    n_x = x + (pairs->at(i).x * rand_1);
-                    n_y = y + pairs->at(i).y;
-                    if (valid_index(n_x, n_y))
+                    if (std::rand() % 2 == 0)
+                        rand_1 *= -1;
+                    
+                    pairs = &(check_pairs[particles[x][y].type]);
+                    num_pairs = pairs->size();
+                    
+                    for (int i = 0, n_x, n_y; i < num_pairs; ++i)
                     {
-                        if (!particles[n_x][n_y].checked &&
-                            swappable(particles[x][y].type,
-                                      particles[n_x][n_y].type))
+                        //New x and New y.
+                        n_x = x + (pairs->at(i).x * rand_1);
+                        n_y = y + pairs->at(i).y;
+                        
+                        if (valid_index(n_x, n_y))
                         {
-                            swap(x, y, n_x, n_y);
-                            particles[n_x][n_y].checked = true;
-                            if (particles[x][y].type != None)
-                                particles[x][y].checked = true;
-                            //If they swapped, break out of the loop.
-                            break;
+                            if (!particles[n_x][n_y].checked &&
+                                swappable(particles[x][y].type,
+                                          particles[n_x][n_y].type))
+                            {
+                                swap(x, y, n_x, n_y);
+                                
+                                if (particles[x][y].type != None)
+                                {
+                                    particles[x][y].checked = true;
+                                    particles[n_x][n_y].checked = true;
+                                    break_move_loop = true;
+                                }
+
+                                x = n_x;
+                                y = n_y;
+                                
+                                //If they swapped, break out of the loop.
+                                break;
+                            }
+                            else
+                                break_move_loop = true;
                         }
-                    }
-                }
-            }
+
+                        if (i == num_pairs - 1)
+                            break_move_loop = true;
+                    } //Check loop
+                }//Checked if statement
+                
+                else { break; }
+                if (break_move_loop){ break; }
+                
+            } //moves loop
+
+            x = start_x;
+            y = start_y;
         }
 
     //Set all particles to unchecked for next iteration.
