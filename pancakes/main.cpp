@@ -4,14 +4,14 @@
 #include <ctime>             //time(NULL)
 #include <SFML/Graphics.hpp> //Graphics
 
-const int START_PANCAKES     = 10;
 const int MAX_PANCAKES       = 10;
+const int MIN_PANCAKES       = 2;
 const int PANCAKE_HEIGHT     = 15;
 const int PANCAKE_WIDTH_MULT = 40;
 const int WINDOW_WIDTH       = 500;
 const int WINDOW_HEIGHT      = 500;
 
-void pancake_setup(std::vector<sf::RectangleShape> &);
+void pancake_setup(std::vector<sf::RectangleShape> &, const int);
 void update_spatula(sf::RectangleShape &,
                     const std::vector<sf::RectangleShape> &,
                     const sf::RenderWindow &,
@@ -26,9 +26,12 @@ int main()
     window.setFramerateLimit(60);
 
     bool in_focus = true;
+    bool left_bracket_pressed = false;
+    bool right_bracket_pressed = false;
 
+    int num_pancakes = MAX_PANCAKES / 2;
     std::vector<sf::RectangleShape> pancakes;
-    pancake_setup(pancakes);
+    pancake_setup(pancakes, num_pancakes);
 
     sf::RectangleShape spatula(sf::Vector2f(WINDOW_WIDTH - 30, 10));
     spatula.setFillColor(sf::Color::Red);
@@ -60,6 +63,44 @@ int main()
 
         if (in_focus && window.isOpen())
         {
+            //Check if pancakes are reset.
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
+                pancake_setup(pancakes, num_pancakes);
+
+            //Check left bracket.
+            if (!left_bracket_pressed &&
+                sf::Keyboard::isKeyPressed(sf::Keyboard::LBracket))
+            {
+                if (num_pancakes > MIN_PANCAKES)
+                {
+                    --num_pancakes;
+                    pancake_setup(pancakes, num_pancakes);
+                }
+                left_bracket_pressed = true;
+            }
+            else if (left_bracket_pressed &&
+                     !sf::Keyboard::isKeyPressed(sf::Keyboard::LBracket))
+            {
+                left_bracket_pressed = false;
+            }
+
+            //Check right bracket.
+            if (!right_bracket_pressed &&
+                sf::Keyboard::isKeyPressed(sf::Keyboard::RBracket))
+            {
+                if (num_pancakes < MAX_PANCAKES)
+                {
+                    ++num_pancakes;
+                    pancake_setup(pancakes, num_pancakes);
+                }
+                right_bracket_pressed = true;
+            }
+            else if (right_bracket_pressed &&
+                     !sf::Keyboard::isKeyPressed(sf::Keyboard::RBracket))
+            {
+                right_bracket_pressed = false;
+            }
+            
             //Check for hovering and clicks.
             update_spatula(spatula, pancakes, window,
                            draw_spatula, pancake_index);
@@ -96,9 +137,11 @@ int main()
 }
 
 
-void pancake_setup(std::vector<sf::RectangleShape> & pancakes)
+void pancake_setup(std::vector<sf::RectangleShape> & pancakes, const int num_pancakes)
 {
-    for (int i = 0; i < START_PANCAKES; ++i)
+    if (pancakes.size() > 0)
+        pancakes.clear();
+    for (int i = 0; i < num_pancakes; ++i)
     {
         pancakes.push_back(sf::RectangleShape(sf::Vector2f(100 + (PANCAKE_WIDTH_MULT * i),
                                                            PANCAKE_HEIGHT)));
@@ -107,7 +150,7 @@ void pancake_setup(std::vector<sf::RectangleShape> & pancakes)
                                   pancakes.back().getSize().y / 2);
         pancakes.back().setPosition(WINDOW_WIDTH / 2,
                                     WINDOW_HEIGHT / 2 +
-                                    ((START_PANCAKES / 2 * -1) + i) * 30);
+                                    ((num_pancakes / 2 * -1) + i) * 30);
     }
     
     return;
