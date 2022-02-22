@@ -2,6 +2,7 @@
 #include <cstdlib>           //rand
 #include <vector>            //std::vector
 #include <ctime>             //time(NULL)
+#include <algorithm>         //std::random_shuffle
 #include <SFML/Graphics.hpp> //Graphics
 
 const int MAX_PANCAKES       = 10;
@@ -17,9 +18,12 @@ void update_spatula(sf::RectangleShape &,
                     const sf::RenderWindow &,
                     bool &, int &);
 void flip(std::vector<sf::RectangleShape> &, const int);
+void randomize(std::vector<sf::RectangleShape> &);
 
 int main()
 {
+    std::srand(time(NULL));
+    
     sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT),
                             "Pancake Flipping");
 
@@ -28,6 +32,7 @@ int main()
     bool in_focus = true;
     bool left_bracket_pressed = false;
     bool right_bracket_pressed = false;
+    bool r_key_pressed = false;
 
     int num_pancakes = MAX_PANCAKES / 2;
     std::vector<sf::RectangleShape> pancakes;
@@ -64,8 +69,23 @@ int main()
         if (in_focus && window.isOpen())
         {
             //Check if pancakes are reset.
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
-                pancake_setup(pancakes, num_pancakes);
+            if (!r_key_pressed &&
+                sf::Keyboard::isKeyPressed(sf::Keyboard::R))
+            {
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
+                    randomize(pancakes);
+                else
+                    pancake_setup(pancakes, num_pancakes);
+
+                r_key_pressed = true;
+            }
+
+            else if (r_key_pressed &&
+                     !sf::Keyboard::isKeyPressed(sf::Keyboard::R))
+            {
+                r_key_pressed = false;
+            }
+                
 
             //Check left bracket.
             if (!left_bracket_pressed &&
@@ -210,6 +230,26 @@ void flip(std::vector<sf::RectangleShape> & pancakes, const int pancake_index)
             pancakes.at(pancake_index - i).setOrigin(pancakes.at(pancake_index - i).getSize().x / 2,
                                                      pancakes.at(pancake_index - i).getSize().y / 2);
         }
+    }
+    
+    return;
+}
+
+
+void randomize(std::vector<sf::RectangleShape> & pancakes)
+{
+    std::vector<sf::Vector2f> size_vects;
+    int n = pancakes.size();
+    for (int i = 0; i < n; ++i)
+        size_vects.push_back(pancakes.at(i).getSize());
+
+    std::random_shuffle(size_vects.begin(), size_vects.end());
+
+    for (int i = 0; i < n; ++i)
+    {
+        pancakes.at(i).setSize(size_vects.at(i));
+        pancakes.at(i).setOrigin(pancakes.at(i).getSize().x / 2,
+                                     pancakes.at(i).getSize().y / 2);
     }
     
     return;
