@@ -24,16 +24,6 @@ public:
         sf::RectangleShape::setPosition(x_pos, y_pos_);
     }
 
-    bool operator<(const SortRect & r) const
-    {
-        return value_ < r.value_;
-    }
-
-    bool operator>(const SortRect & r) const
-    {
-        return value_ > r.value_;
-    }
-
     static void set_y_pos(const int y_pos);
     
 private:
